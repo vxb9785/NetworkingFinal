@@ -6,15 +6,19 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * @author Duncan Okes, Abbey Sands, Carolyn Opre
- * @version 3/30/17
+ * @author Abbey Sands
+ * @version 11/28/17
  *
  * A class that creates a multi-threaded server for a chat program
  */
-public class TcpServer
+public class TcpServer extends JFrame
 {
-   //Vector to store the PrintWriters to allow sending messages to every user
+   //Vector to store the PrintWriters to allow sending messages to every user and GUI components
    private Vector<PrintWriter> printWriters = new Vector<PrintWriter>();
+   
+   private JTextArea jtaServLog;
+   private JPanel jpServLog;
+   private JLabel jlServLog;
    
    /**
     * The main() method creates a new instance of the TcpServer class
@@ -36,11 +40,36 @@ public class TcpServer
       //start try
       try
       {
-         //Opening server message
-         System.out.println("The server has started!\nI am: "+InetAddress.getLocalHost());
+         setTitle("Final Project TCP Server");
+         setDefaultCloseOperation(EXIT_ON_CLOSE);
          
+         jtaServLog = new JTextArea("",10,30);
+         jtaServLog.setLineWrap(true);           
+         jtaServLog.setWrapStyleWord(true);
+         jtaServLog.setEditable(false);
+         
+         jpServLog = new JPanel();
+         
+         JScrollPane jtaLogPane = new JScrollPane(jtaServLog);
+         
+         jlServLog = new JLabel("Server Log: ");
+         
+         jpServLog.add(jlServLog);
+         jpServLog.add(jtaLogPane);
+         
+         add(jpServLog);
+         
+         pack();
+         setLocationRelativeTo(null);
+         setVisible(true);
+         
+         //Opening server message
+         jtaServLog.append("The server has started!\nI am: "+InetAddress.getLocalHost() + "\n");
+         
+         //Gets port number here
          String port = JOptionPane.showInputDialog("Enter the port you'd like the server to run on: ");
          int portNum = Integer.parseInt(port);
+         jtaServLog.append("Server is now running on port: " + portNum + "\n");
          
          ss = new ServerSocket(portNum);
       }
@@ -110,7 +139,7 @@ public class TcpServer
             //read from client
             userName = br.readLine();
             
-            System.out.println(userName + " has connected to the server");
+            jtaServLog.append(userName + " has connected to the server\n");
             
             //write to clients and flush
             for(int i = 0; i < printWriters.size(); i++)
@@ -157,7 +186,7 @@ public class TcpServer
             } 
                        
             printWriters.remove(this);
-            System.out.println(userName + " has left the server");
+            jtaServLog.append(userName + " has left the server\n");
 
          }
          catch(NullPointerException npe)
@@ -172,7 +201,7 @@ public class TcpServer
             }
             
             printWriters.remove(this);
-            System.out.println(userName + " has left the server");
+            jtaServLog.append(userName + " has left the server\n");
          }
          catch(IOException ioe)
          {
